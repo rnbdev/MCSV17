@@ -1,0 +1,66 @@
+MODULE T0(x, y)
+	VAR
+		counter : 0..3;
+	ASSIGN
+		init(counter) := 0;
+		next(x) :=
+			case
+				counter = 0 : 10;
+				TRUE : x;
+			esac;
+		next(y) :=
+			case
+				counter = 1 :
+					case
+						y < 100 : y + 1;
+						TRUE : -100;
+					esac;
+				counter = 2 : 20;
+				TRUE : y;
+			esac;
+		next(counter) := 
+			case
+				counter < 3 : counter + 1;
+				TRUE : counter;
+			esac;
+
+MODULE T1(k)
+	VAR
+		counter : 0..1;
+	ASSIGN
+		init(counter) := 0;
+		next(k) :=
+			case
+				counter = 0 :
+					case
+						k < 100 : k + 1;
+						TRUE : -100;
+					esac;
+				TRUE : k;
+			esac;
+		next(counter) :=
+			case
+				counter < 1 : counter + 1;
+				TRUE : counter;
+			esac;
+
+MODULE main
+	VAR
+		x : -100..100;
+		y : -100..100;
+		t1 : process T0(x, y);
+		t2 : process T1(x);
+		t3 : process T1(y);
+	ASSIGN
+		init(x) := 0;
+		init(y) := 0;
+
+
+SPEC AG (x <= 11 & y <= 21) -- invariant
+
+SPEC AG ((t1.counter = 3 & t2.counter = 1 & t3.counter = 1) -> (x = 11 & y = 21))
+
+SPEC AF (t1.counter = 3 & t2.counter = 1 & t3.counter = 1)
+
+-- SPEC AG (((t1.counter = 3 & t2.counter = 1 & t3.counter = 1) -> (x = 11)))
+-- LTLSPEC G ((t1.counter = 3 & t2.counter = 1 & t3.counter = 1) -> (y = 21)) 

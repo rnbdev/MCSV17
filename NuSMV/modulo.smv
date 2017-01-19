@@ -1,0 +1,21 @@
+MODULE main
+	VAR
+		x: 0..10;
+		y: 0..10;
+	ASSIGN
+		-- init(x) := 0;
+		-- init(y) := 0;
+		next(x) := (x + 1) mod 3;
+		next(y) := case
+				y < 10: (y + 1);
+				TRUE: 0;
+			   esac;
+
+SPEC AG (x < 3) -- invariant property; fail for no init
+SPEC AG (x = 0) -- invariant? NO! not safe
+SPEC AG (AF (x = 0)) -- liveness property
+
+SPEC AF (x = 0)
+
+LTLSPEC G (y >= x)
+LTLSPEC G ((x != 1) -> F (x = 1))
