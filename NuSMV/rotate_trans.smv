@@ -1,0 +1,26 @@
+-- example for TRANS usage
+-- following example is a left shift rotation on 3-bit
+
+MODULE main
+    VAR
+        -- simulates (x2 x1 x0)
+        x0 : 0..1;
+        x1 : 0..1;
+        x2 : 0..1;
+
+    INIT
+        -- boolean forumla for initial states : I(x)
+        -- initial state: (1 0 1)
+        x2 = 1 & x1 = 0 & x0 = 1;
+    
+    TRANS
+        -- boolean formula for transition relation : T(x, next(x))
+        -- transition: (x2 x1 x0) --> (x1 x0 x2)
+        next(x0) = x2 & next(x1) = x0 & next(x2) = x1;
+
+
+
+-- PS: NuSMV usermanual says,
+-- `Using TRANS & INIT it is possible to specify inadmissible Kripke structures,
+-- where the set of initial states is empty or the transition relation is not 
+-- total. This may result in logical absurdities.'
