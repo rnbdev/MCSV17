@@ -1,70 +1,90 @@
+-- solving river crossing puzzle using NuSMV
 -- farmer, fox, goose & beans
--- classic logical problem
--- solving using nuSMV
 -- https://en.wikipedia.org/wiki/Fox,_goose_and_bag_of_beans_puzzle
 
 MODULE main
-	VAR
-		farmer_loc: {bank1, bank2};
-		fox_loc: {bank1, bank2};
-		goose_loc: {bank1, bank2};
-		beans_loc: {bank1, bank2};
+    VAR
+        farmer_loc: {bank1, bank2};
+        fox_loc: {bank1, bank2};
+        goose_loc: {bank1, bank2};
+        beans_loc: {bank1, bank2};
 
-		todo: {think, cross, allcrossed};
-		take: {none, fox, goose, beans};
-	ASSIGN
-		init(farmer_loc) := bank1;
-		init(todo) := think;
-		init(take) := none;
+        todo: {think, cross, allcrossed};
+        take: {none, fox, goose, beans};
+    ASSIGN
+        init(farmer_loc) := bank1;
+        init(todo) := think;
+        init(take) := none;
 
-		init(fox_loc) := bank1;
-		init(goose_loc) := bank1;
-		init(beans_loc) := bank1;
+        init(fox_loc) := bank1;
+        init(goose_loc) := bank1;
+        init(beans_loc) := bank1;
 
-		next(farmer_loc) := case
-			todo = cross: case
-				farmer_loc = bank1: bank2;
-				farmer_loc = bank2: bank1;
-			esac;
-			TRUE: farmer_loc;
-		esac;
+        next(farmer_loc) := case
+            todo = cross: case
+                farmer_loc = bank1: bank2;
+                farmer_loc = bank2: bank1;
+            esac;
+            TRUE: farmer_loc;
+        esac;
 
-		next(todo) := case
-			farmer_loc = bank2 &
-			fox_loc = bank2 &
-			goose_loc = bank2 &
-			beans_loc = bank2 : allcrossed;
-			todo = think: cross;
-			TRUE: think;
-		esac;
+        next(todo) := case
+            farmer_loc = bank2 &
+            fox_loc = bank2 &
+            goose_loc = bank2 &
+            beans_loc = bank2 : allcrossed;
+            todo = think: cross;
+            TRUE: think;
+        esac;
 
-		next(take) :=
-			none union
-			case
-				todo = think & fox_loc = farmer_loc: fox;
-				TRUE: none;
-			esac union
-			case
-				todo = think & goose_loc = farmer_loc: goose;
-				TRUE: none;
-			esac union
-			case
-				todo = think & beans_loc = farmer_loc: beans;
-				TRUE: none;
-			esac;
+        next(take) :=
+            none union
+            case
+                todo = think & fox_loc = farmer_loc: fox;
+                TRUE: none;
+            esac union
+            case
+                todo = think & goose_loc = farmer_loc: goose;
+                TRUE: none;
+            esac union
+            case
+                todo = think & beans_loc = farmer_loc: beans;
+                TRUE: none;
+            esac;
 
 
-		next(fox_loc) := case
-			todo = cross & take = fox: next(farmer_loc);
-			TRUE: fox_loc;
-		esac;
-		next(goose_loc) := case
-			todo = cross & take = goose: next(farmer_loc);
-			TRUE: goose_loc;
-		esac;
-		next(beans_loc) := case
-			todo = cross & take = beans: next(farmer_loc);
-			TRUE: beans_loc;
-		esac;
+        next(fox_loc) := case
+            todo = cross & take = fox: next(farmer_loc);
+            TRUE: fox_loc;
+        esac;
+        next(goose_loc) := case
+            todo = cross & take = goose: next(farmer_loc);
+            TRUE: goose_loc;
+        esac;
+        next(beans_loc) := case
+            todo = cross & take = beans: next(farmer_loc);
+            TRUE: beans_loc;
+        esac;
 
-LTLSPEC G (((farmer_loc != fox_loc) -> (fox_loc != goose_loc)) & ((farmer_loc != goose_loc) -> (goose_loc != beans_loc))) -> !F (farmer_loc = bank2 & fox_loc = bank2 & goose_loc = bank2 & beans_loc = bank2)
+
+-- note, NuSMV always gives an counter example. so to get an example of a
+-- property, we should negate it and then check for an counter example.
+
+-- we are trying to get an example for property (G(A) & F(B)) where
+--      A is safety condition so G(A) means it is always satisfied and 
+--      B is the goal and F(B) means it is evetually satisfied
+-- hence we should check for
+--      !(G(A) & F(B)) = !G(A) | !F(B) = G(A) -> !F(B)
+-- following is the exact property for this example.
+
+LTLSPEC G (
+            ((farmer_loc != fox_loc  ) -> (fox_loc   != goose_loc)) & 
+            ((farmer_loc != goose_loc) -> (goose_loc != beans_loc))  
+          ) -- fox never eats goose and goose never eats beans
+        -> 
+        !F (
+            farmer_loc = bank2 &
+            fox_loc = bank2 & 
+            goose_loc = bank2 & 
+            beans_loc = bank2
+          ) -- eventually all of them does not reach bank2
