@@ -1,5 +1,7 @@
-		     Model Checking and System Verification
-			       CMI, Jan-Apr 2017
+                     Model Checking and System Verification
+                               CMI, Jan-Apr 2017
+
+                                     NuSMV
 
 1. concur.smv and modulo.smv are sample codes for problem used in class.
 
