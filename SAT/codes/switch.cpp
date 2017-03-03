@@ -48,11 +48,11 @@ int main() {
   clause.push(Minisat::mkLit(x1));
   clause.push(~Minisat::mkLit(s1));
 
-  Minisat::vec<Minisat::Lit> assumptions;
-  assumptions.push(~Minisat::mkLit(s1));
-
   s.addClause(clause);
   clause.clear();
+
+  Minisat::vec<Minisat::Lit> assumptions;
+  assumptions.push(~Minisat::mkLit(s1));
 
   if(s.solve(assumptions)) {
     std::cout << "SAT" << "\n";
