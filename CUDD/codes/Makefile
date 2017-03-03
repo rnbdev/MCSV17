@@ -11,10 +11,10 @@ all:
 	@echo CC $(INCLUDE) $(LIBDIR) $(LIBS)
 
 .c:
-	$(CC) -w $(INCLUDE) $(LIBDIR) $(LIBS) -o $@ $<
+	$(CC) -w $(INCLUDE) $(LIBDIR) -o $@ $< $(LIBS)
 
 .cpp:
-	$(CXX) -w $(INCLUDE) $(LIBDIR) $(LIBS) -o $@ $<
+	$(CXX) -w $(INCLUDE) $(LIBDIR) -o $@ $< $(LIBS)
 
 clean:
 	-rm *.o
